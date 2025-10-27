@@ -1,0 +1,4 @@
+* text=auto
+
+#diff=csharp
+*.cs                            diff=csharp

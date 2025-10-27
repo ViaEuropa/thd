@@ -1,0 +1,62 @@
+name: build
+on:
+  push:
+    branches: ["main"]
+    tags:
+      - "v*"
+  pull_request:
+    branches: ["main"]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v5
+      - name: Calculate application version
+        id: build-version
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const toStrip = "refs/tags/v";
+            return context.ref.substring(toStrip.length)
+          result-encoding: string
+      - name: Print version
+        run: echo "${{ steps.build-version.outputs.result }}"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Check format
+        run: dotnet format --no-restore --verify-no-changes
+      - name: Build
+        run: dotnet build --no-restore
+  publish:
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    environment: nuget
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v5
+      - name: Get version
+        id: build-version
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const versionPrefix = "refs/tags/v";
+            return context.ref.substring(versionPrefix.length)
+          result-encoding: string
+      - name: Print version
+        run: echo "${{ steps.build-version.outputs.result }}"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c RELEASE -p:ContinuousIntegrationBuild=true -p:version=${{ steps.build-version.outputs.result }} --no-restore
+      - name: Create nuget package
+        run: dotnet pack -c RELEASE --no-build -p:packageVersion=${{ steps.build-version.outputs.result }} -p:RepositoryBranch=${GITHUB_REF#refs/*/} -p:RepositoryCommit=${GITHUB_SHA} --no-restore
