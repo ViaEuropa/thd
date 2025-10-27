@@ -1,0 +1,22 @@
+<Project>
+    <PropertyGroup Label="Versioning">
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup Label="Product">
+        <Company>Labs2 International AB</Company>
+        <Copyright>Copyright © Labs2 International AB 2025</Copyright>
+        <Product>thd</Product>
+        <Authors>orjansjoholm</Authors>
+    </PropertyGroup>
+    <PropertyGroup Label="LocalDevelopment">
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    </PropertyGroup>
+    <PropertyGroup Label="Lint">
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    </PropertyGroup>
+</Project>

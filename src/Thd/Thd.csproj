@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>thd</ToolCommandName>
+        <AssemblyName>thd</AssemblyName>
+        <RootNamespace>Thd</RootNamespace>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <PackageId>thd</PackageId>
+        <Title>Two Headed Dog</Title>
+        <Description>Compare json over http endpoints</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>Diff</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://github.com/ViaEuropa/thd</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/ViaEuropa/thd.git</RepositoryUrl>
+        <PackageIcon>icon.png</PackageIcon>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="/"/>
+        <None Include="images/icon.png" Pack="true" PackagePath="/"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Scriban"/>
+        <PackageReference Include="Sep"/>
+        <PackageReference Include="System.CommandLine"/>
+        <PackageReference Include="SystemTextJson.JsonDiffPatch"/>
+    </ItemGroup>
+</Project>
