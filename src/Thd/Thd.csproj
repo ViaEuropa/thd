@@ -18,6 +18,10 @@
         <RepositoryUrl>https://github.com/ViaEuropa/thd.git</RepositoryUrl>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="/"/>
         <None Include="images/icon.png" Pack="true" PackagePath="/"/>
