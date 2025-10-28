@@ -1,4 +1,5 @@
-using nietras.SeparatedValues;
+using Thd.Reader;
+using Thd.Request;
 
 namespace Thd.Commands.Compare;
 
@@ -6,40 +7,51 @@ public static class CompareCommandHandler
 {
     public static async Task<int> Handle(CompareCommand command, CancellationToken token)
     {
-        var origin = new GetRequest(new HttpClient(), command.ActualRequestConfiguration);
-        var destination = new GetRequest(new HttpClient(), command.ExpectedReportConfiguration);
+        IResolveUrl resolveExpected = new TemplateUrlResolver(command.ExpectedReportConfiguration.BaseUrlTemplate);
+        IResolveUrl resolveActual = new TemplateUrlResolver(command.ActualRequestConfiguration.BaseUrlTemplate);
+        GetRequest requestExpected = new GetRequest(new HttpClient(), command.ExpectedReportConfiguration);
+        GetRequest requestActual = new GetRequest(new HttpClient(), command.ActualRequestConfiguration);
 
-        using var reader = await Sep.Reader(configure: options => options with
+        IReplayDataReader reader = new CsvReader(command.SourceFile.FullName);
+
+        var requests = reader.Read(token)
+            .Select(data =>
+            {
+                var urlExpected = resolveExpected.ResolveUrl(data);
+                var urlActual = resolveActual.ResolveUrl(data);
+
+                return new CompareRequestData(urlActual, urlExpected);
+            });
+
+        IAsyncEnumerable<CompareRequestData> filteredRequests = FilterRequests(requests, command.Configuration);
+
+        await foreach (var request in filteredRequests.WithCancellation(token))
         {
-            Unescape = true
-        }).FromFileAsync(command.SourceFile.FullName, token);
-
-        int numberOfMetaDataColumns = reader.Header.ColNames.Count - 1;
-
-        await foreach (var readRow in reader)
-        {
-            ReplayData replayData = ReplayData(numberOfMetaDataColumns, readRow);
-
-            await Diff.CompareRequests(command.Configuration, origin, destination, replayData, token);
+            await Diff.CompareRequests(command.Configuration, requestExpected, requestActual, request, token);
         }
 
         return 0;
+
     }
 
-    private static ReplayData ReplayData(int numberOfMetaDataColumns, SepReader.Row readRow)
+    private static IAsyncEnumerable<CompareRequestData> FilterRequests(IAsyncEnumerable<CompareRequestData> requests, CompareConfiguration commandConfiguration)
     {
-        IDictionary<string, string> routingData = new Dictionary<string, string>();
-        for (int i = 0; i < numberOfMetaDataColumns; i++)
-        {
-            routingData["column_" + (i + 1)] = readRow[i].Span.ToString();
-        }
+        var filteredRequests = commandConfiguration.PathStartsWith == null
+            ? requests
+            : requests.Where(task => task.UrlExpected.DestinationUrl.PathAndQuery.StartsWith(commandConfiguration.PathStartsWith));
 
-        var replayData = new ReplayData
+        Func<Uri, string>? distinctKey = commandConfiguration.Filter switch
         {
-            Path = readRow[numberOfMetaDataColumns].Span.ToString(),
-            RoutingData = routingData
+            Filter.None => null,
+            Filter.Unique => uri => uri.ToString(),
+            Filter.UniquePattern => UrlFilter.GenerateUniqueKey,
+            _ => throw new ArgumentOutOfRangeException()
         };
 
-        return replayData;
+        var distinctRequests = distinctKey == null
+            ? filteredRequests
+            : filteredRequests.DistinctBy(data => distinctKey(data.UrlExpected.DestinationUrl));
+
+        return distinctRequests;
     }
 }

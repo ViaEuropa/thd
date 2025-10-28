@@ -1,4 +1,4 @@
-namespace Thd.Commands.Compare;
+namespace Thd.Request;
 
 public record RequestConfiguration
 {

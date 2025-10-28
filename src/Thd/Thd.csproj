@@ -27,8 +27,11 @@
         <None Include="images/icon.png" Pack="true" PackagePath="/"/>
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.WebUtilities" />
         <PackageReference Include="Scriban"/>
         <PackageReference Include="Sep"/>
+        <PackageReference Include="Spectre.Console"/>
+        <PackageReference Include="Spectre.Console.Json"/>
         <PackageReference Include="System.CommandLine"/>
         <PackageReference Include="SystemTextJson.JsonDiffPatch"/>
     </ItemGroup>
