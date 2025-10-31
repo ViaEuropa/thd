@@ -5,4 +5,5 @@
     <File Path="Directory.Build.props" />
   </Folder>
   <Project Path="src\Thd\Thd.csproj" Type="Classic C#" />
+  <Project Path="test\Thd.Test\Thd.Test.csproj" Type="Classic C#" />
 </Solution>

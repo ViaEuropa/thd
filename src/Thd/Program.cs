@@ -1,7 +1,5 @@
 ﻿using System.CommandLine;
 
-using Thd.Commands.Compare;
-
 namespace Thd;
 
 public sealed class Program

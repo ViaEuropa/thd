@@ -1,6 +1,7 @@
 using System.CommandLine;
 
 using Thd.Commands.Compare;
+using Thd.Request;
 
 namespace Thd;
 
@@ -36,12 +37,31 @@ public static class CommandFactory
 
     private static readonly Option<string?> ActualAuthorizationHeader = new("--actual-authorization-header")
     {
-        Description = "Authorization header for --actual-base-url",
+        Description = "Authorization header for --actual-base-url. Will read from env.THD_ACTUAL_AUTHORIZATION_HEADER if not specified.",
     };
 
     private static readonly Option<string?> ExpectedAuthorizationHeader = new("--expected-authorization-header")
     {
-        Description = "Authorization header for --expected-base-url",
+        Description = "Authorization header for --expected-base-url. Will read from env.THD_EXPECTED_AUTHORIZATION_HEADER if not specified.",
+    };
+
+    private static readonly Option<string?> PathShouldStartsWith = new("--experimental-path")
+    {
+        Description = "Drop paths not starting with --experimental-path.",
+    };
+
+    private static readonly Option<bool> AggressiveFiltering = new("--experimental-aggressive-filtering")
+    {
+        Description = "Will find unique patterns in the actual domain/path?query",
+        Required = false,
+        DefaultValueFactory = _ => false
+    };
+
+    private static readonly Option<bool> UpgradeHttpToHttpInResponse = new("--experimental-upgrade-http")
+    {
+        Description = "Will upgrade http to https for the actual responses",
+        Required = false,
+        DefaultValueFactory = _ => false
     };
 
     private static readonly Argument<FileInfo> SourceFile = new("source-file")
@@ -61,6 +81,9 @@ public static class CommandFactory
                 ActualAuthorizationHeader,
                 NormalizeBaseUrl,
                 Interactive,
+                UpgradeHttpToHttpInResponse,
+                PathShouldStartsWith,
+                AggressiveFiltering
             };
 
         compareCommand.SetAction(async (result, token) =>
@@ -82,7 +105,10 @@ public static class CommandFactory
                 Configuration =
                     new CompareConfiguration(
                         IsInteractive: result.GetValue(Interactive),
-                        ShouldNormalize: result.GetValue(NormalizeBaseUrl)
+                        ShouldNormalizeBaseUrlInResponse: result.GetValue(NormalizeBaseUrl),
+                        Filter: result.GetValue(AggressiveFiltering) ? Filter.UniquePattern : Filter.None,
+                        PathStartsWith: result.GetValue(PathShouldStartsWith),
+                        UpgradeHttpToHttpInResponse: result.GetValue(UpgradeHttpToHttpInResponse)
                     ),
                 SourceFile = file
             };
