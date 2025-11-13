@@ -22,6 +22,14 @@ jobs:
         run: dotnet format --no-restore --verify-no-changes
       - name: Build
         run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-restore --report-xunit-trx --results-directory artifacts/test-results
+      - name: Upload dotnet test results
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-results
+          path: artifacts/test-results
+        if: ${{ always() }}  
   publish:
     if: startsWith(github.event.ref, 'refs/tags/v')
     environment: nuget

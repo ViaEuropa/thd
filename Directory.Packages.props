@@ -5,14 +5,14 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" />
     <PackageVersion Include="Scriban" Version="6.5.0" />
     <PackageVersion Include="Sep" Version="0.11.5" />
     <PackageVersion Include="Spectre.Console" Version="0.53.0" />
     <PackageVersion Include="Spectre.Console.Json" Version="0.53.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.0" />
     <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
-    <PackageVersion Include="xunit.v3" Version="3.2.0" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.0" />
   </ItemGroup>
 </Project>

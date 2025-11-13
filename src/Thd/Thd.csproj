@@ -17,6 +17,8 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/ViaEuropa/thd.git</RepositoryUrl>
         <PackageIcon>icon.png</PackageIcon>
+        <!-- Once SystemTextJson.JsonDiffPatch drops the dependency on System.Text.Json i can be removed -->
+        <NoWarn>NU1510</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -33,6 +35,7 @@
         <PackageReference Include="Spectre.Console"/>
         <PackageReference Include="Spectre.Console.Json"/>
         <PackageReference Include="System.CommandLine"/>
+        <PackageReference Include="System.Text.Json" />
         <PackageReference Include="SystemTextJson.JsonDiffPatch"/>
     </ItemGroup>
 </Project>
