@@ -133,11 +133,6 @@ public static class CommandFactory
         string? cliValue = result.GetValue(option);
         string? resolveValue = cliValue ?? Environment.GetEnvironmentVariable(environmentVariable);
 
-        if (resolveValue == null)
-        {
-            throw new InvalidOperationException("Missing environment variable: " + environmentVariable);
-        }
-
         return resolveValue;
     }
 
