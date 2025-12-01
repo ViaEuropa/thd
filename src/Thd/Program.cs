@@ -4,7 +4,7 @@ namespace Thd;
 
 public sealed class Program
 {
-    static async Task<int> Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         RootCommand command = CommandFactory.CreateRootCommand();
         ParseResult parseResult = command.Parse(args);
