@@ -20,6 +20,7 @@
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" />
         <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+        <PackageReference Include="Spectre.Console.Testing" />
         <PackageReference Include="Verify.XunitV3" />
         <PackageReference Include="xunit.v3.mtp-v2" />
     </ItemGroup>

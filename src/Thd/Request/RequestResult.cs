@@ -3,4 +3,4 @@ using System.Text.Json.Nodes;
 
 namespace Thd.Request;
 
-public record RequestResult(Uri InspectionUrl, JsonNode? Node, HttpStatusCode StatusCode);
+public record RequestResult(Uri InspectionUrl, JsonNode? Node, HttpStatusCode? StatusCode, HttpRequestError? Error);

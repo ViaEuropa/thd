@@ -1,0 +1,14 @@
+﻿❌ /version
+  Expected (Status OK)
+    http://localhost:5000/version
+  Actual (Status N/A) - Error: ConnectionError
+    https://localhost:1567/version
+  HTTP status diff: OK !== 
+  JSON diff:
+[
+   {
+      "version": "1.0.0",
+      "name": "Thd Test Server"
+   },
+   null
+]
