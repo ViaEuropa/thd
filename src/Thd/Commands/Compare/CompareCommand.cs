@@ -15,8 +15,8 @@ public sealed record CompareConfiguration(
     bool ShouldNormalizeBaseUrlInResponse,
     Filter Filter,
     string? PathStartsWith,
-    bool UpgradeHttpToHttpInResponse
-);
+    bool UpgradeHttpToHttpInResponse,
+    Verbosity Verbosity);
 
 public enum Filter
 {

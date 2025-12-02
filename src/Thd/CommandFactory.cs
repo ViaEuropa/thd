@@ -64,6 +64,29 @@ public static class CommandFactory
         DefaultValueFactory = _ => false
     };
 
+    private static readonly Option<Verbosity> VerbosityOption = VerbosityOptionFactory();
+
+    private static Option<Verbosity> VerbosityOptionFactory()
+    {
+        Option<Verbosity> option = new("--verbosity", "-v")
+        {
+            Description = "Sets the verbosity level of the output.",
+            Required = false,
+            DefaultValueFactory = _ => Verbosity.Normal,
+            CustomParser = result => result.Tokens[0].Value switch
+            {
+                "q" or "quiet" => Verbosity.Quiet,
+                "m" or "minimal" => Verbosity.Minimal,
+                "n" or "normal" => Verbosity.Normal,
+                "d" or "detailed" => Verbosity.Detailed,
+                "diag" or "diagnostic" => Verbosity.Diagnostic,
+                _ => throw new ArgumentException($"Invalid verbosity level: {result.GetValueOrDefault<string>()}")
+            },
+        };
+        option.AcceptOnlyFromAmong("q", "quiet", "m", "minimal", "n", "normal", "d", "detailed", "diag", "diagnostic");
+        return option;
+    }
+
     private static readonly Argument<FileInfo> SourceFile = new("source-file")
     {
         Description = "The file containing the list of URLs to compare."
@@ -83,7 +106,8 @@ public static class CommandFactory
                 Interactive,
                 UpgradeHttpToHttpInResponse,
                 PathShouldStartsWith,
-                AggressiveFiltering
+                AggressiveFiltering,
+                VerbosityOption
             };
 
         compareCommand.SetAction(async (result, token) =>
@@ -108,7 +132,8 @@ public static class CommandFactory
                         ShouldNormalizeBaseUrlInResponse: result.GetValue(NormalizeBaseUrl),
                         Filter: result.GetValue(AggressiveFiltering) ? Filter.UniquePattern : Filter.None,
                         PathStartsWith: result.GetValue(PathShouldStartsWith),
-                        UpgradeHttpToHttpInResponse: result.GetValue(UpgradeHttpToHttpInResponse)
+                        UpgradeHttpToHttpInResponse: result.GetValue(UpgradeHttpToHttpInResponse),
+                        result.GetRequiredValue(VerbosityOption)
                     ),
                 SourceFile = file
             };
@@ -140,7 +165,6 @@ public static class CommandFactory
     {
         RootCommand rootCommand =
             new("thd - A tool to compare HTTP GET requests between two configurations.") { CreateCompareCommand() };
-
         return rootCommand;
     }
 }
