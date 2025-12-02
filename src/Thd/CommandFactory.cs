@@ -66,6 +66,12 @@ public static class CommandFactory
 
     private static readonly Option<Verbosity> VerbosityOption = VerbosityOptionFactory();
 
+    private static readonly Option<string?> ExpectedHttpStatus = new("--expected-http-status")
+    {
+        Description = "Template for the expected HTTP status code. Use {{ column_n }} to reference metadata columns or a static value like 200.",
+        HelpName = "{{ column_2 }}",
+    };
+
     private static Option<Verbosity> VerbosityOptionFactory()
     {
         Option<Verbosity> option = new("--verbosity", "-v")
@@ -107,7 +113,8 @@ public static class CommandFactory
                 UpgradeHttpToHttpInResponse,
                 PathShouldStartsWith,
                 AggressiveFiltering,
-                VerbosityOption
+                VerbosityOption,
+                ExpectedHttpStatus
             };
 
         compareCommand.SetAction(async (result, token) =>
@@ -133,7 +140,8 @@ public static class CommandFactory
                         Filter: result.GetValue(AggressiveFiltering) ? Filter.UniquePattern : Filter.None,
                         PathStartsWith: result.GetValue(PathShouldStartsWith),
                         UpgradeHttpToHttpInResponse: result.GetValue(UpgradeHttpToHttpInResponse),
-                        result.GetRequiredValue(VerbosityOption)
+                        result.GetRequiredValue(VerbosityOption),
+                        result.GetValue(ExpectedHttpStatus)
                     ),
                 SourceFile = file
             };

@@ -16,7 +16,8 @@ public sealed record CompareConfiguration(
     Filter Filter,
     string? PathStartsWith,
     bool UpgradeHttpToHttpInResponse,
-    Verbosity Verbosity);
+    Verbosity Verbosity,
+    string? ExpectedHttpStatusTemplate);
 
 public enum Filter
 {

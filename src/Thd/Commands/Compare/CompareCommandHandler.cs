@@ -9,6 +9,10 @@ public static class CompareCommandHandler
     {
         IResolveUrl resolveExpected = new TemplateUrlResolver(command.ExpectedReportConfiguration.BaseUrlTemplate);
         IResolveUrl resolveActual = new TemplateUrlResolver(command.ActualRequestConfiguration.BaseUrlTemplate);
+        IHttpStatusCodeResolver httpStatusCodeResolver = command.Configuration.ExpectedHttpStatusTemplate == null
+            ? new HttpStatusCodeNopResolver()
+            : new HttpStatusCodeTemplateResolver(command.Configuration.ExpectedHttpStatusTemplate);
+
         GetRequest requestExpected = new GetRequest(new HttpClient(), command.ExpectedReportConfiguration);
         GetRequest requestActual = new GetRequest(new HttpClient(), command.ActualRequestConfiguration);
 
@@ -19,13 +23,14 @@ public static class CompareCommandHandler
             {
                 var urlExpected = resolveExpected.ResolveUrl(data);
                 var urlActual = resolveActual.ResolveUrl(data);
+                var expectedStatusCode = httpStatusCodeResolver.ResolveStatusCode(data);
 
-                return new CompareRequestData(urlActual, urlExpected);
+                return new CompareRequestData(urlActual, urlExpected, expectedStatusCode);
             });
 
         IAsyncEnumerable<CompareRequestData> filteredRequests = FilterRequests(requests, command.Configuration);
 
-        await foreach (var request in filteredRequests.WithCancellation(token))
+        await foreach (CompareRequestData request in filteredRequests.WithCancellation(token))
         {
             await Diff.CompareRequests(command.Configuration, requestExpected, requestActual, request, token);
         }
