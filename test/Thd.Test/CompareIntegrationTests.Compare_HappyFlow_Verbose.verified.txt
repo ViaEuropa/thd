@@ -1,0 +1,5 @@
+﻿✅ /version
+  Expected (Status OK)
+    http://localhost:5000/version
+  Actual (Status OK)
+    http://localhost:5000/version

@@ -45,7 +45,7 @@ public static class Diff
         }
 
         // Detailed rendering of the requests
-        if (!identicalRequests)
+        if (!identicalRequests || configuration.Verbosity.IsAtLeastDetailed())
         {
             RenderRequestData(console, expectedResult, "Expected");
             RenderRequestData(console, actualResult, "Actual");
