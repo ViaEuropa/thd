@@ -25,7 +25,7 @@ public sealed class HttpStatusCodeTemplateResolver : IHttpStatusCodeResolver
         {
             return null;
         }
-        
+
         return (HttpStatusCode)httpStatusCodeInt;
     }
 }

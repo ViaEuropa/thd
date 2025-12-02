@@ -3,7 +3,7 @@
     http://localhost:5000/version
   Actual (Status N/A) - Error: ConnectionError
     https://localhost:1567/version
-  HTTP status diff: OK !== 
+  HTTP status diff: (Actual  !== OK)
   JSON diff:
 [
    {
