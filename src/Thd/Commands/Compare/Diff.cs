@@ -62,6 +62,10 @@ public static class Diff
             console.WriteLine("  JSON diff:");
 
             var json = new JsonText(diff.ToString());
+            json.BracesColor(Color.Blue);
+            json.BracketColor(Color.Blue);
+            json.CommaColor(Color.Blue);
+            json.NullColor(Color.Blue);
 
             console.Write(json);
             console.WriteLine();
