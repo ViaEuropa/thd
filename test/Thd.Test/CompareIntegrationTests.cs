@@ -68,6 +68,32 @@ public class CompareIntegrationTests
     }
 
     [Fact]
+    public async Task Compare_HappyFlow_ExpectedStatusCode()
+    {
+        const string content = """
+                               Id;HttpStatus;Path
+                               1;200;/version
+                               2;404;/version
+                               """;
+
+        string sourceFile = await CreateSourceFile(content, TestContext.Current.CancellationToken);
+
+        string[] args =
+        [
+            "compare",
+            "-l", _apiFixture.BasePath,
+            "-r", _apiFixture.BasePath,
+            "--expected-http-status", "{{ column_2 }}",
+            sourceFile
+        ];
+
+        ExecResult result = await ExecThd(args);
+
+        await Verify(result.StdOut);
+        Assert.Equal(0, result.ExitCode);
+    }
+
+    [Fact]
     public async Task Compare_StatusCodeDiff()
     {
         const string content = """

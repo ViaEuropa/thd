@@ -1,16 +1,19 @@
+using System.Net;
 using System.Text.Json.JsonDiffPatch;
 using System.Text.Json.Nodes;
 
 using Spectre.Console;
 using Spectre.Console.Json;
 
+using Thd.Reader;
 using Thd.Request;
 
 namespace Thd.Commands.Compare;
 
 public static class Diff
 {
-    public static async Task CompareRequests(CompareConfiguration configuration, GetRequest requestExpected,
+    public static async Task CompareRequests(CompareConfiguration configuration,
+        GetRequest requestExpected,
         GetRequest requestActual,
         CompareRequestData url, CancellationToken cancellationToken)
     {
@@ -25,14 +28,20 @@ public static class Diff
         RequestResult actualResult =
             await requestActual.Get(url.UrlActual, responseConfiguration, cancellationToken);
 
-        await RenderResult(AnsiConsole.Console, configuration, expectedResult, actualResult, cancellationToken);
+        // Determine expected status code
+        // 1. From the --expected-http-status option
+        // 2. From the expected request result
+        // 3. Default to 200 OK
+        HttpStatusCode expectedStatusCode = url.ExpectedStatusCode ?? expectedResult.StatusCode ?? HttpStatusCode.OK;
+
+        await RenderResult(AnsiConsole.Console, configuration, expectedResult, actualResult, expectedStatusCode, cancellationToken);
     }
 
     private static async Task RenderResult(IAnsiConsole console, CompareConfiguration configuration,
         RequestResult expectedResult,
-        RequestResult actualResult, CancellationToken cancellationToken)
+        RequestResult actualResult, HttpStatusCode expectedStatusCode, CancellationToken cancellationToken)
     {
-        bool identicalRequests = IsIdenticalRequests(expectedResult, actualResult);
+        bool identicalRequests = IsIdenticalRequests(expectedStatusCode, expectedResult, actualResult);
 
         if (identicalRequests)
         {
@@ -51,9 +60,9 @@ public static class Diff
             RenderRequestData(console, actualResult, "Actual");
         }
 
-        if (expectedResult.StatusCode != actualResult.StatusCode)
+        if (expectedStatusCode != expectedResult.StatusCode || expectedStatusCode != actualResult.StatusCode)
         {
-            console.WriteLine($"  HTTP status diff: {expectedResult.StatusCode} !== {actualResult.StatusCode}");
+            console.WriteLine($"  HTTP status diff: {expectedStatusCode} !== {actualResult.StatusCode}");
         }
 
         var diff = expectedResult.Node.Diff(actualResult.Node);
@@ -85,11 +94,13 @@ public static class Diff
         {
             console.Write(" - Error: " + Enum.GetName(typeof(HttpRequestError), expectedResult.Error));
         }
+
         console.WriteLine();
         console.MarkupLineInterpolated($"    [link]{expectedResult.InspectionUrl}[/]");
     }
 
-    private static bool IsIdenticalRequests(RequestResult expectedResult, RequestResult actualResult)
+    private static bool IsIdenticalRequests(HttpStatusCode expectedStatusCode, RequestResult expectedResult,
+        RequestResult actualResult)
     {
         // We cannot consider requests as identical if one of them has an error
         if (expectedResult.Error != null || actualResult.Error != null)
@@ -97,7 +108,7 @@ public static class Diff
             return false;
         }
 
-        if (expectedResult.StatusCode != actualResult.StatusCode)
+        if (expectedStatusCode != expectedResult.StatusCode || expectedStatusCode != actualResult.StatusCode)
         {
             return false;
         }
