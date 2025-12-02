@@ -1,0 +1,14 @@
+﻿❌ /version
+  Expected (Status OK)
+    http://localhost:5000/version
+  Actual (Status NotFound)
+    http://localhost:5000/notfound/version
+  HTTP status diff: OK !== NotFound
+  JSON diff:
+[
+   {
+      "version": "1.0.0",
+      "name": "Thd Test Server"
+   },
+   null
+]

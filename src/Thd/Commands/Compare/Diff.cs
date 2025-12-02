@@ -25,42 +25,87 @@ public static class Diff
         RequestResult actualResult =
             await requestActual.Get(url.UrlActual, responseConfiguration, cancellationToken);
 
+        await RenderResult(AnsiConsole.Console, configuration, expectedResult, actualResult, cancellationToken);
+    }
 
-        if (expectedResult.StatusCode != actualResult.StatusCode)
+    private static async Task RenderResult(IAnsiConsole console, CompareConfiguration configuration,
+        RequestResult expectedResult,
+        RequestResult actualResult, CancellationToken cancellationToken)
+    {
+        bool identicalRequests = IsIdenticalRequests(expectedResult, actualResult);
+
+        if (identicalRequests)
         {
-            Console.WriteLine($"{expectedResult.StatusCode} != {actualResult.StatusCode}");
-
-            if (configuration.IsInteractive)
-            {
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
-            }
-
-            return;
-        }
-
-        var diff = expectedResult.Node.Diff(actualResult.Node);
-        if (diff == null || IsEmptyObject(diff))
-        {
-            Console.WriteLine("Equals: " + expectedResult.InspectionUrl.PathAndQuery);
+            console.MarkupLineInterpolated(
+                $"{Emoji.Known.CheckMarkButton} {expectedResult.InspectionUrl.PathAndQuery}");
         }
         else
         {
-            Console.WriteLine($"Expected url: {expectedResult.InspectionUrl}");
-            Console.WriteLine($"Actual url  : {actualResult.InspectionUrl}");
+            console.MarkupLineInterpolated($"{Emoji.Known.CrossMark} {expectedResult.InspectionUrl.PathAndQuery}");
+        }
+
+        // Detailed rendering of the requests
+        if (!identicalRequests)
+        {
+            RenderRequestData(console, expectedResult, "Expected");
+            RenderRequestData(console, actualResult, "Actual");
+        }
+
+        if (expectedResult.StatusCode != actualResult.StatusCode)
+        {
+            console.WriteLine($"  HTTP status diff: {expectedResult.StatusCode} !== {actualResult.StatusCode}");
+        }
+
+        var diff = expectedResult.Node.Diff(actualResult.Node);
+        if (diff != null && !IsEmptyObject(diff))
+        {
+            console.WriteLine("  JSON diff:");
 
             var json = new JsonText(diff.ToString());
+            json.BracesColor(Color.Blue);
+            json.BracketColor(Color.Blue);
+            json.CommaColor(Color.Blue);
+            json.NullColor(Color.Blue);
 
-            AnsiConsole.Write(json);
-            AnsiConsole.WriteLine();
+            console.Write(json);
+            console.WriteLine();
+        }
 
-            if (configuration.IsInteractive)
-            {
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
-            }
+        if (configuration.IsInteractive && !identicalRequests)
+        {
+            console.WriteLine("Press any key to continue...");
+            await console.Input.ReadKeyAsync(true, cancellationToken);
         }
     }
+
+    private static void RenderRequestData(IAnsiConsole console, RequestResult expectedResult, string title)
+    {
+        console.Write($"  {title} (Status {expectedResult.StatusCode?.ToString() ?? "N/A"})");
+        if (expectedResult.Error != null)
+        {
+            console.Write(" - Error: " + Enum.GetName(typeof(HttpRequestError), expectedResult.Error));
+        }
+        console.WriteLine();
+        console.MarkupLineInterpolated($"    [link]{expectedResult.InspectionUrl}[/]");
+    }
+
+    private static bool IsIdenticalRequests(RequestResult expectedResult, RequestResult actualResult)
+    {
+        // We cannot consider requests as identical if one of them has an error
+        if (expectedResult.Error != null || actualResult.Error != null)
+        {
+            return false;
+        }
+
+        if (expectedResult.StatusCode != actualResult.StatusCode)
+        {
+            return false;
+        }
+
+        var diff = expectedResult.Node.Diff(actualResult.Node);
+        return diff == null || IsEmptyObject(diff);
+    }
+
 
     private static bool IsEmptyObject(JsonNode? node)
     {

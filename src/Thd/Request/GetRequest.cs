@@ -24,12 +24,21 @@ public class GetRequest
             httpRequestMessage.Headers.Add("Authorization", _requestConfiguration.ApiKey);
         }
 
-        var response =
-            await _httpClient.SendAsync(httpRequestMessage, token);
+        (HttpResponseMessage? response, HttpRequestError? error) = await HttpResponseMessage(token, httpRequestMessage);
+
+        if (error != null)
+        {
+            return new RequestResult(url.DestinationUrl, null, null, error);
+        }
+
+        if (response == null)
+        {
+            return new RequestResult(url.DestinationUrl, null, null, HttpRequestError.Unknown);
+        }
 
         if (!response.IsSuccessStatusCode)
         {
-            return new RequestResult(url.DestinationUrl, null, response.StatusCode);
+            return new RequestResult(url.DestinationUrl, null, response.StatusCode, null);
         }
 
         string responseContent = await response.Content.ReadAsStringAsync(token);
@@ -49,7 +58,21 @@ public class GetRequest
 
         var node = JsonNode.Parse(json);
 
-        return new RequestResult(url.DestinationUrl, node, response.StatusCode);
+        return new RequestResult(url.DestinationUrl, node, response.StatusCode, null);
+    }
+
+    private async Task<(HttpResponseMessage? Response, HttpRequestError? Error)> HttpResponseMessage(CancellationToken token, HttpRequestMessage httpRequestMessage)
+    {
+        try
+        {
+            var response =
+                await _httpClient.SendAsync(httpRequestMessage, token);
+            return (response, null);
+        }
+        catch (HttpRequestException e)
+        {
+            return (null, e.HttpRequestError);
+        }
     }
 
     private string WrapResponse(string? mediaType, string response)
