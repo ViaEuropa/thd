@@ -62,7 +62,16 @@ public static class Diff
 
         if (expectedStatusCode != expectedResult.StatusCode || expectedStatusCode != actualResult.StatusCode)
         {
-            console.WriteLine($"  HTTP status diff: {expectedStatusCode} !== {actualResult.StatusCode}");
+            console.Write("  HTTP status diff:");
+            if (expectedStatusCode != expectedResult.StatusCode)
+            {
+                console.Write($" (Expected {expectedResult.StatusCode} !== {expectedStatusCode})");
+            }
+            if (expectedStatusCode != actualResult.StatusCode)
+            {
+                console.Write($" (Actual {actualResult.StatusCode} !== {expectedStatusCode})");
+            }
+            console.WriteLine();
         }
 
         var diff = expectedResult.Node.Diff(actualResult.Node);

@@ -3,7 +3,7 @@
     http://localhost:5000/version
   Actual (Status NotFound)
     http://localhost:5000/notfound/version
-  HTTP status diff: OK !== NotFound
+  HTTP status diff: (Actual NotFound !== OK)
   JSON diff:
 [
    {
