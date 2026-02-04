@@ -25,7 +25,7 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --report-xunit-trx --results-directory artifacts/test-results
       - name: Upload dotnet test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: test-results
           path: artifacts/test-results
