@@ -10,12 +10,22 @@ public sealed class HttpStatusCodeTemplateResolver : IHttpStatusCodeResolver
 
     public HttpStatusCodeTemplateResolver(string template)
     {
-        _template = Template.Parse(template); ;
+        _template = Template.Parse(template);
     }
 
     public HttpStatusCode? ResolveStatusCode(ReplayData replayData)
     {
         string httpStatusCode = _template.Render(replayData.RoutingData);
-        return (HttpStatusCode?)int.Parse(httpStatusCode);
+        if (!int.TryParse(httpStatusCode, out int httpStatusCodeInt))
+        {
+            return null;
+        }
+
+        if (!Enum.IsDefined(typeof(HttpStatusCode), httpStatusCodeInt))
+        {
+            return null;
+        }
+
+        return (HttpStatusCode)httpStatusCodeInt;
     }
 }
