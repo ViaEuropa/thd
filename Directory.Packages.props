@@ -13,7 +13,7 @@
     <PackageVersion Include="Spectre.Console.Json" Version="0.54.0" />
     <PackageVersion Include="Spectre.Console.Testing" Version="0.54.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.2" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.2" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.3" />
     <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
     <PackageVersion Include="Verify.XunitV3" Version="31.10.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
