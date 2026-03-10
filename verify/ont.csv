@@ -1,0 +1,8 @@
+installation;url
+oegig;/optical-network-terminals?page=599&pageSize=100
+oegig;/optical-network-terminals/?query.serialNumber=ALCLF9DA4117
+litecom;/optical-network-terminals/?query.serialNumber=AVMG72970089
+litecom;/optical-network-terminals?query.serialNumber=AVMG7B427A0F&query.parentAccessPointId=10.196.4.36-8-14
+oegig;/optical-network-terminals/80459
+oegig;/optical-network-terminals/42
+oegig;/optical-network-terminals/10.146.21.210-1-5-9/status

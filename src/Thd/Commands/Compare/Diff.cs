@@ -46,7 +46,7 @@ public static class Diff
         if (identicalRequests)
         {
             console.MarkupLineInterpolated(
-                $"{Emoji.Known.CheckMarkButton} {expectedResult.InspectionUrl.PathAndQuery}");
+                $"{Emoji.Known.CheckMarkButton} {expectedResult.InspectionUrl.AbsoluteUri}");
         }
         else
         {
